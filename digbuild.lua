@@ -40,7 +40,7 @@ premake.override(premake.vstudio.cs2005.elements, "projectProperties", function(
             p.w('<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>')
         end
 		if cfg.resourcesdir then
-			p.w('<EmbeddedResource Include="' .. (cfg.resourcesdir) .. '\**\*" />')
+			p.w('<EmbeddedResource Include="' .. (cfg.resourcesdir) .. '\\**\\*" />')
 		end
     end)
     return calls
