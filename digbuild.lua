@@ -30,6 +30,11 @@ p.api.register {
     scope = "config",
     kind = "string"
 }
+p.api.register {
+    name = "analyzer",
+    scope = "config",
+    kind = "list:string"
+}
 premake.override(premake.vstudio.cs2005.elements, "projectProperties", function(base, cfg) 
     local calls = base(cfg)
     table.insert(calls, function(cfg)
@@ -42,8 +47,34 @@ premake.override(premake.vstudio.cs2005.elements, "projectProperties", function(
 		if cfg.resourcesdir then
 			p.w('<EmbeddedResource Include="' .. (cfg.resourcesdir) .. '\\**\\*" />')
 		end
+		-- Required to make premake parse the value ???
+		if cfg.analyzer then
+		end
     end)
     return calls
+end)
+
+-- Support for C# source analyzers/generators
+premake.override(premake.vstudio.dotnetbase, "projectReferences", function(base, prj) 
+    base(prj)
+	
+	local cfg = p.project.getfirstconfig(prj)
+	local analyzers = cfg.analyzer
+	
+	if #analyzers > 0 then
+		p.w('<ItemGroup>')
+		
+		local vstudio = p.vstudio
+		
+		for _,analyzer in ipairs(analyzers) do
+			local pr = p.workspace.findproject(cfg.workspace, analyzer)
+			local relpath = vstudio.path(prj, vstudio.projectfile(pr))
+			p.w('  <ProjectReference Include="' .. relpath .. '" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />')
+		end
+		
+		p.w('</ItemGroup>')
+	end
+	
 end)
 
 return m
