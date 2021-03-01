@@ -31,6 +31,11 @@ p.api.register {
     kind = "string"
 }
 p.api.register {
+    name = "packageid",
+    scope = "config",
+    kind = "string"
+}
+p.api.register {
     name = "analyzer",
     scope = "config",
     kind = "list:string"
@@ -46,6 +51,13 @@ premake.override(premake.vstudio.cs2005.elements, "projectProperties", function(
         end
 		if cfg.resourcesdir then
 			p.w('<EmbeddedResource Include="' .. (cfg.resourcesdir) .. '\\**\\*" />')
+		end
+		if cfg.packageid then
+			p.w('<PackageId>' .. (cfg.packageid) .. '</PackageId>')
+			p.w('<RootNamespace>' .. (cfg.packageid) .. '</RootNamespace>')
+		end
+		if cfg.targetname then
+			p.w('<AssemblyName>' .. (cfg.targetname) .. '</AssemblyName>')
 		end
 		-- Required to make premake parse the value ???
 		if cfg.analyzer then
