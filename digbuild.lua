@@ -40,6 +40,11 @@ p.api.register {
     scope = "config",
     kind = "list:string"
 }
+p.api.register {
+    name = "copylib",
+    scope = "config",
+    kind = "list:string"
+}
 premake.override(premake.vstudio.cs2005.elements, "projectProperties", function(base, cfg) 
     local calls = base(cfg)
     table.insert(calls, function(cfg)
@@ -62,16 +67,19 @@ premake.override(premake.vstudio.cs2005.elements, "projectProperties", function(
 		-- Required to make premake parse the value ???
 		if cfg.analyzer then
 		end
+		if cfg.copylib then
+		end
     end)
     return calls
 end)
 
--- Support for C# source analyzers/generators
+-- Support for C# source analyzers/generators and lib copying
 premake.override(premake.vstudio.dotnetbase, "projectReferences", function(base, prj) 
     base(prj)
 	
 	local cfg = p.project.getfirstconfig(prj)
 	local analyzers = cfg.analyzer
+	local copylib = cfg.copylib
 	
 	if #analyzers > 0 then
 		p.w('<ItemGroup>')
@@ -82,6 +90,18 @@ premake.override(premake.vstudio.dotnetbase, "projectReferences", function(base,
 			local pr = p.workspace.findproject(cfg.workspace, analyzer)
 			local relpath = vstudio.path(prj, vstudio.projectfile(pr))
 			p.w('  <ProjectReference Include="' .. relpath .. '" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />')
+		end
+		
+		p.w('</ItemGroup>')
+	end
+	
+	if #copylib > 0 then
+		p.w('<ItemGroup>')
+		
+		for _,lib in ipairs(copylib) do
+			local l = {}
+			for s in lib:gmatch('([^:]+):?') do l[#l + 1] = s end
+			p.w('  <ContentWithTargetPath Include="' .. l[1] .. '" TargetPath="' .. l[2] .. '" CopyToOutputDirectory="PreserveNewest" />')
 		end
 		
 		p.w('</ItemGroup>')
