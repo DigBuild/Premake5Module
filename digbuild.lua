@@ -54,9 +54,6 @@ premake.override(premake.vstudio.cs2005.elements, "projectProperties", function(
         if cfg.noframeworktag then
             p.w('<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>')
         end
-		if cfg.resourcesdir then
-			p.w('<EmbeddedResource Include="' .. (cfg.resourcesdir) .. '\\**\\*" />')
-		end
 		if cfg.packageid then
 			p.w('<PackageId>' .. (cfg.packageid) .. '</PackageId>')
 			p.w('<RootNamespace>' .. (cfg.packageid) .. '</RootNamespace>')
@@ -80,6 +77,12 @@ premake.override(premake.vstudio.dotnetbase, "projectReferences", function(base,
 	local cfg = p.project.getfirstconfig(prj)
 	local analyzers = cfg.analyzer
 	local copylib = cfg.copylib
+	
+	if cfg.resourcesdir then
+		p.w('<ItemGroup>')
+        p.w('  <EmbeddedResource Include="' .. (cfg.resourcesdir) .. '\\**\\*" />')
+		p.w('</ItemGroup>')
+	end
 	
 	if #analyzers > 0 then
 		p.w('<ItemGroup>')
